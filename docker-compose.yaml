@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    container_name: app
+    command: sh -c "
+      python manage.py makemigrations
+      && python manage.py migrate
+      && gunicorn --bind 0.0.0.0:8000 digital_atelier.wsgi:application
+      "
+    ports:
+      - 8000:8000
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+    restart: always
+  db:
+    env_file:
+      - .env.prod
+    image: postgres:12-alpine
+    container_name: postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+volumes:
+  postgres_data:
